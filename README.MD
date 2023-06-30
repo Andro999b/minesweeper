@@ -1,5 +1,5 @@
 
-A simple console MineSweeper gaem
+A simple console MineSweeper game
 
 
 Usage:
