@@ -13,7 +13,7 @@ func main() {
 
 	flag.IntVar(&w, "w", 40, "minefield width")
 	flag.IntVar(&h, "h", 10, "minefield height")
-	flag.IntVar(&m, "m", 20, "number of mines on a field")
+	flag.IntVar(&m, "m", 40, "number of mines on a field")
 	flag.Parse()
 
 	g, err := game.NewGame(w, h, m)

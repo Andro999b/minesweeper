@@ -76,7 +76,7 @@ func (g *Game) OpenCell(x int, y int) {
 	}
 
 	g.uncoverCell(cell)
-	if cell.neighboreMines > 0 {
+	if cell.neighborMines > 0 {
 		return
 	}
 
@@ -87,17 +87,17 @@ func (g *Game) OpenCell(x int, y int) {
 		cur := front.Value.(*Cell)
 		q.Remove(front)
 
-		g.forEachCellNeighbor(cur, func(neighbore *Cell) {
-			if neighbore.uncovered {
+		g.forEachCellNeighbor(cur, func(neighbor *Cell) {
+			if neighbor.uncovered {
 				return
 			}
 
-			g.uncoverCell(neighbore)
-			if neighbore.neighboreMines > 0 {
+			g.uncoverCell(neighbor)
+			if neighbor.neighborMines > 0 {
 				return
 			}
 
-			q.PushBack(neighbore)
+			q.PushBack(neighbor)
 		})
 	}
 }
@@ -155,8 +155,8 @@ func (g *Game) generateField() {
 		cell.isMine = true
 
 		// inc count of mines for each neighbor cells
-		g.forEachCellNeighbor(cell, func(neighbore *Cell) {
-			neighbore.neighboreMines++
+		g.forEachCellNeighbor(cell, func(neighbor *Cell) {
+			neighbor.neighborMines++
 		})
 
 		// remove picked position
