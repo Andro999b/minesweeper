@@ -192,6 +192,14 @@ func (g *Game) uncoverCell(cell *Cell) {
 }
 
 func NewGame(w int, h int, mines int) (*Game, error) {
+	if w < 1 || h < 1 {
+		return nil, errors.New("field to small")
+	}
+
+	if mines < 1 {
+		return nil, errors.New("should be atleast 1 mine on a field")
+	}
+
 	if h > MAX_HEIGHT {
 		return nil, errors.New("height to big")
 	}
