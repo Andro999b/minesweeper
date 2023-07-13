@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+var getRandSeed = func() int64 {
+	return time.Now().UnixNano()
+}
+
 const MAX_HEIGHT = 20
 const MAX_WIDTH = 100
 
@@ -52,10 +56,6 @@ func (g *Game) ToggleMark(x int, y int) {
 	}
 
 	cell.marked = !cell.marked
-
-	if !cell.isMine {
-		return
-	}
 }
 
 func (g *Game) OpenCell(x int, y int) {
@@ -142,7 +142,7 @@ func (g *Game) generateField() {
 		}
 	}
 
-	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
+	rnd := rand.New(rand.NewSource(getRandSeed()))
 
 	// for each mine
 	for m := 0; m < g.mines; m++ {

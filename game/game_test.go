@@ -1,6 +1,9 @@
 package game
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestMaxHeight(t *testing.T) {
 	_, err := NewGame(1, MAX_HEIGHT+1, 10)
@@ -97,6 +100,175 @@ func TestIsLose(t *testing.T) {
 	}
 
 	if !g.IsOver() {
-		t.Error("Game should be over if player  lose")
+		t.Error("Game should be over if player lose")
 	}
+}
+
+func TestGenerateField(t *testing.T) {
+	actualGetRandSeed := getRandSeed
+	getRandSeed = func() int64 { return 1 }
+	defer func() {
+		getRandSeed = actualGetRandSeed
+	}()
+
+	game, err := NewGame(3, 3, 2)
+
+	if err != nil {
+		t.Error("Should creates new game without error")
+	}
+
+	actualXPos := flatField[int](game, func(c *Cell) int { return c.x })
+	expectedXPos := []int{
+		0, 1, 2,
+		0, 1, 2,
+		0, 1, 2,
+	}
+	if !reflect.DeepEqual(actualXPos, expectedXPos) {
+		t.Error("Incorrect cells x pos")
+	}
+
+	actualYPos := flatField[int](game, func(c *Cell) int { return c.y })
+	expectedYPos := []int{
+		0, 0, 0,
+		1, 1, 1,
+		2, 2, 2,
+	}
+	if !reflect.DeepEqual(actualYPos, expectedYPos) {
+		t.Error("Incorrect cells y pos")
+	}
+
+	actualMinesPos := flatField[bool](game, func(c *Cell) bool { return c.isMine })
+	expectedMinesPos := []bool{
+		false, false, false,
+		false, false, false,
+		false, true, true,
+	}
+	if !reflect.DeepEqual(actualMinesPos, expectedMinesPos) {
+		t.Error("Incorrect mines placement")
+	}
+
+	actualNeighborMines := flatField[int](game, func(c *Cell) int { return c.neighborMines })
+	expectedNeighborMines := []int{
+		0, 0, 0,
+		1, 2, 2,
+		1, 1, 1,
+	}
+	if !reflect.DeepEqual(actualNeighborMines, expectedNeighborMines) {
+		t.Error("Incorrect mines neigbor count")
+	}
+}
+
+func TestToggleMark(t *testing.T) {
+	actualGetRandSeed := getRandSeed
+	getRandSeed = func() int64 { return 1 }
+	defer func() {
+		getRandSeed = actualGetRandSeed
+	}()
+
+	game, err := NewGame(3, 3, 2)
+
+	if err != nil {
+		t.Error("Should creates new game without error")
+	}
+
+	game.ToggleMark(0, 0)
+	actualMarked := flatField[bool](game, func(c *Cell) bool { return c.marked })
+	expectMarked := []bool{
+		true, false, false,
+		false, false, false,
+		false, false, false,
+	}
+
+	if !reflect.DeepEqual(actualMarked, expectMarked) {
+		t.Error("Incorrect marked cells")
+	}
+}
+
+func TestOpenCell(t *testing.T) {
+	actualGetRandSeed := getRandSeed
+	getRandSeed = func() int64 { return 1 }
+	defer func() {
+		getRandSeed = actualGetRandSeed
+	}()
+
+	game, err := NewGame(3, 3, 2)
+
+	if err != nil {
+		t.Error("Should creates new game without error")
+	}
+
+	// should open single cell
+	game.OpenCell(0, 2)
+
+	actualUncovered := flatField[bool](game, func(c *Cell) bool { return c.uncovered })
+	expectUncovered := []bool{
+		false, false, false,
+		false, false, false,
+		true, false, false,
+	}
+
+	if !reflect.DeepEqual(actualUncovered, expectUncovered) {
+		t.Error("Incorrect uncovered cells")
+	}
+
+	game.OpenCell(0, 0)
+
+	actualUncovered = flatField[bool](game, func(c *Cell) bool { return c.uncovered })
+	expectUncovered = []bool{
+		true, true, true,
+		true, true, true,
+		true, false, false,
+	}
+
+	if !reflect.DeepEqual(actualUncovered, expectUncovered) {
+		t.Error("Incorrect uncovered cells")
+	}
+
+	if !game.IsOver() {
+		t.Error("Game should be over")
+	}
+
+	if game.IsLose() {
+		t.Error("Player should win")
+	}
+}
+
+func TestGameLose(t *testing.T) {
+	actualGetRandSeed := getRandSeed
+	getRandSeed = func() int64 { return 1 }
+	defer func() {
+		getRandSeed = actualGetRandSeed
+	}()
+
+	game, err := NewGame(3, 3, 2)
+	if err != nil {
+		t.Error("Should creates new game without error")
+	}
+
+	game.OpenCell(2, 2)
+
+	if !game.IsOver() {
+		t.Error("Game should be over")
+	}
+
+	if !game.IsLose() {
+		t.Error("Player should lose")
+	}
+
+	if !game.minehit {
+		t.Error("Game minehit flag should be set")
+	}
+}
+
+func flatField[T any](game *Game, fn func(*Cell) T) []T {
+	slice := make([]T, game.w*game.h)
+
+	for x := range game.field {
+		for y := range game.field[x] {
+			i := x*game.h + y
+			slice[i] = fn(game.field[y][x])
+		}
+	}
+
+	return slice
 }
