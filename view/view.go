@@ -120,37 +120,55 @@ func (v *View) drawBoard(xOffset int, yOffset int) {
 	gameOver := v.game.IsOver()
 	for x := 0; x < v.game.GetWidth(); x++ {
 		for y := 0; y < v.game.GetHeight(); y++ {
-			var char rune
-			var style tcell.Style
-			cell := v.game.GetCell(x, y)
-
-			if gameOver && cell.IsMine() {
-				char = '*'
-				style = tcell.StyleDefault.Foreground(tcell.ColorRed)
-			} else if cell.IsUncovered() {
-				style = tcell.StyleDefault.Background(tcell.ColorGreen)
-				if cell.NeighborMines() > 0 {
-					s := strconv.Itoa(cell.NeighborMines())
-					char = []rune(s)[0]
-				} else {
-					char = ' '
-				}
-			} else {
-				if cell.IsMarked() {
-					char = 'x'
-				} else {
-					char = ' '
-				}
-				style = tcell.StyleDefault.Background(tcell.ColorGray)
-			}
-
-			if v.cursor.x == x && v.cursor.y == y {
-				style = tcell.StyleDefault.Background(tcell.ColorBeige).Foreground(tcell.ColorBlack)
-			}
-
-			v.screen.SetContent(x+xOffset, y+yOffset, char, nil, style)
+			v.drawCell(x, y, xOffset, yOffset, gameOver)
 		}
 	}
+}
+
+func (v *View) drawCell(x int, y int, xOffset int, yOffset int, gameOver bool) {
+	var char rune
+	var style tcell.Style
+	cell := v.game.GetCell(x, y)
+
+	if gameOver || cell.IsUncovered() {
+		char, style = v.getUncoveredCellStyle(cell)
+	} else {
+		char, style = v.getMarkedCellStyle(cell)
+	}
+
+	if v.cursor.x == x && v.cursor.y == y {
+		style = tcell.StyleDefault.Background(tcell.ColorBeige).Foreground(tcell.ColorBlack)
+	}
+
+	v.screen.SetContent(x+xOffset, y+yOffset, char, nil, style)
+}
+
+func (*View) getMarkedCellStyle(cell *game.Cell) (char rune, style tcell.Style) {
+	if cell.IsMarked() {
+		char = 'x'
+	} else {
+		char = ' '
+	}
+	style = tcell.StyleDefault.Background(tcell.ColorGray)
+
+	return char, style
+}
+
+func (*View) getUncoveredCellStyle(cell *game.Cell) (char rune, style tcell.Style) {
+	if cell.IsMine() {
+		char = '*'
+		style = tcell.StyleDefault.Foreground(tcell.ColorRed)
+	} else {
+		style = tcell.StyleDefault.Background(tcell.ColorGreen)
+		if cell.NeighborMines() > 0 {
+			s := strconv.Itoa(cell.NeighborMines())
+			char = []rune(s)[0]
+		} else {
+			char = ' '
+		}
+	}
+
+	return char, style
 }
 
 func (v *View) drawText(x int, y int, text string) {
