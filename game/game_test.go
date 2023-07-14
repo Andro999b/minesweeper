@@ -6,57 +6,57 @@ import (
 )
 
 func TestMaxHeight(t *testing.T) {
-	_, err := NewGame(1, MAX_HEIGHT+1, 10)
+	_, err := NewGame(1, MAX_HEIGHT+1, 10, 1)
 	if err.Error() != "height to big" {
 		t.Errorf("Should fail if height bigger that %v", MAX_HEIGHT)
 	}
 }
 
 func TestMaxWidth(t *testing.T) {
-	_, err := NewGame(MAX_WIDTH+1, 1, 10)
+	_, err := NewGame(MAX_WIDTH+1, 1, 10, 1)
 	if err.Error() != "width to big" {
 		t.Errorf("Should fail if widht bigger that %v", MAX_WIDTH)
 	}
 }
 
 func TestMaxMines(t *testing.T) {
-	_, err := NewGame(1, 1, 1)
+	_, err := NewGame(1, 1, 1, 1)
 	if err.Error() != "too much mines" {
 		t.Error("Should fail if mines count bigger or equals field size")
 	}
 }
 
 func TestMinMines(t *testing.T) {
-	_, err := NewGame(1, 1, 0)
+	_, err := NewGame(1, 1, 0, 1)
 	if err.Error() != "should be atleast 1 mine on a field" {
 		t.Error("Should fail if no mines on a field")
 	}
 
-	_, err = NewGame(1, 1, -1)
+	_, err = NewGame(1, 1, -1, 1)
 	if err.Error() != "should be atleast 1 mine on a field" {
 		t.Error("Should fail if no mines is negative")
 	}
 }
 
 func TestZeroOrNegativeHeight(t *testing.T) {
-	_, err := NewGame(1, 0, 1)
+	_, err := NewGame(1, 0, 1, 1)
 	if err.Error() != "field to small" {
 		t.Error("Should fail if field heigth 0")
 	}
 
-	_, err = NewGame(1, -1, 1)
+	_, err = NewGame(1, -1, 1, 1)
 	if err.Error() != "field to small" {
 		t.Error("Should fail if field heigth negative")
 	}
 }
 
 func TestZeroOrNegativeWidth(t *testing.T) {
-	_, err := NewGame(0, 1, 1)
+	_, err := NewGame(0, 1, 1, 1)
 	if err.Error() != "field to small" {
 		t.Error("Should fail if field width 0")
 	}
 
-	_, err = NewGame(0, 1, 1)
+	_, err = NewGame(0, 1, 1, 1)
 	if err.Error() != "field to small" {
 		t.Error("Should fail if field width negative")
 	}
@@ -93,7 +93,7 @@ func TestIsLose(t *testing.T) {
 		t.Error("Game should not be lost untile mine hit")
 	}
 
-	g.minehit = true
+	g.livesLeft = 0
 
 	if !g.IsLose() {
 		t.Error("Game should be lost if mine hit")
@@ -111,7 +111,7 @@ func TestGenerateField(t *testing.T) {
 		getRandSeed = actualGetRandSeed
 	}()
 
-	game, err := NewGame(3, 3, 2)
+	game, err := NewGame(3, 3, 2, 1)
 
 	if err != nil {
 		t.Error("Should creates new game without error")
@@ -165,7 +165,7 @@ func TestToggleMark(t *testing.T) {
 		getRandSeed = actualGetRandSeed
 	}()
 
-	game, err := NewGame(3, 3, 2)
+	game, err := NewGame(3, 3, 2, 1)
 
 	if err != nil {
 		t.Error("Should creates new game without error")
@@ -191,7 +191,7 @@ func TestOpenCell(t *testing.T) {
 		getRandSeed = actualGetRandSeed
 	}()
 
-	game, err := NewGame(3, 3, 2)
+	game, err := NewGame(3, 3, 2, 1)
 
 	if err != nil {
 		t.Error("Should creates new game without error")
@@ -240,7 +240,7 @@ func TestGameLose(t *testing.T) {
 		getRandSeed = actualGetRandSeed
 	}()
 
-	game, err := NewGame(3, 3, 2)
+	game, err := NewGame(3, 3, 2, 1)
 	if err != nil {
 		t.Error("Should creates new game without error")
 	}
@@ -255,8 +255,8 @@ func TestGameLose(t *testing.T) {
 		t.Error("Player should lose")
 	}
 
-	if !game.minehit {
-		t.Error("Game minehit flag should be set")
+	if game.livesLeft != 0 {
+		t.Error("Game livesLeft should be 0")
 	}
 }
 

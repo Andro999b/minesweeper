@@ -20,9 +20,10 @@ type Game struct {
 	field     [][]*Cell
 	h         int
 	w         int
+	lives     int
+	livesLeft int
 	mines     int
 	uncovered int
-	minehit   bool
 }
 
 func (g *Game) GetWidth() int {
@@ -35,6 +36,10 @@ func (g *Game) GetHeight() int {
 
 func (g *Game) GetMines() int {
 	return g.mines
+}
+
+func (g *Game) GetLivesLeft() int {
+	return g.livesLeft
 }
 
 func (g *Game) GetCell(x int, y int) *Cell {
@@ -71,7 +76,7 @@ func (g *Game) OpenCell(x int, y int) {
 	if cell.isMine {
 		cell.marked = false
 		cell.uncovered = true
-		g.minehit = true
+		g.livesLeft--
 		return
 	}
 
@@ -103,15 +108,15 @@ func (g *Game) OpenCell(x int, y int) {
 }
 
 func (g *Game) IsLose() bool {
-	return g.minehit
+	return g.livesLeft == 0
 }
 
 func (g *Game) IsOver() bool {
-	return g.minehit || g.mines+g.uncovered == g.w*g.h
+	return g.IsLose() || g.mines+g.uncovered == g.w*g.h
 }
 
 func (g *Game) Reset() {
-	g.minehit = false
+	g.livesLeft = g.lives
 	g.uncovered = 0
 	g.generateField()
 }
@@ -191,7 +196,7 @@ func (g *Game) uncoverCell(cell *Cell) {
 	g.uncovered++
 }
 
-func NewGame(w int, h int, mines int) (*Game, error) {
+func NewGame(w int, h int, mines int, lives int) (*Game, error) {
 	if w < 1 || h < 1 {
 		return nil, errors.New("field to small")
 	}
@@ -212,10 +217,16 @@ func NewGame(w int, h int, mines int) (*Game, error) {
 		return nil, errors.New("too much mines")
 	}
 
+	if lives < 0 {
+		return nil, errors.New("lives should be bigger that 0")
+	}
+
 	game := &Game{
-		w:     w,
-		h:     h,
-		mines: mines,
+		w:         w,
+		h:         h,
+		mines:     mines,
+		lives:     lives,
+		livesLeft: lives,
 	}
 
 	game.generateField()

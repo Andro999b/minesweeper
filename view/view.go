@@ -86,7 +86,7 @@ func (v *View) processInput(event *tcell.EventKey) bool {
 
 func (v *View) RefreshScreen() {
 	v.drawText(4, 0, "MineSweeper")
-	v.drawText(4, 1, fmt.Sprintf("Mines on a field: %v", v.game.GetMines()))
+	v.drawText(4, 1, fmt.Sprintf("Mines on a field: %v. Lives left: %v", v.game.GetMines(), v.game.GetLivesLeft()))
 	v.drawText(4, 2, "Use ←↑↓→ to move cursor, Space to open cell, X to mark cell. Press Q or CTRL+C to quite")
 	if v.game.IsOver() {
 		outcome := "WIN"

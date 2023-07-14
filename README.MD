@@ -10,3 +10,4 @@ Argument:
     w   Minefield width(default: 40)
     h   Minefield height(default: 10)
     m   A number of mines on a field(default: 40)
+    l   A number of player lives(default: 1)
