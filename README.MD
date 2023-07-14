@@ -4,7 +4,7 @@ A simple console MineSweeper game
 
 Usage:
 ```
-$ minesweeper [-w 10] [-h 10] [-m 10]
+$ minesweeper [-w 10] [-h 10] [-m 10] [-l 1]
 
 Argument:
     w   Minefield width(default: 40)

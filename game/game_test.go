@@ -7,58 +7,95 @@ import (
 
 func TestMaxHeight(t *testing.T) {
 	_, err := NewGame(1, MAX_HEIGHT+1, 10, 1)
-	if err.Error() != "height to big" {
+	if err == nil || err.Error() != "height to big" {
 		t.Errorf("Should fail if height bigger that %v", MAX_HEIGHT)
 	}
 }
 
 func TestMaxWidth(t *testing.T) {
 	_, err := NewGame(MAX_WIDTH+1, 1, 10, 1)
-	if err.Error() != "width to big" {
+	if err == nil || err.Error() != "width to big" {
 		t.Errorf("Should fail if widht bigger that %v", MAX_WIDTH)
 	}
 }
 
 func TestMaxMines(t *testing.T) {
 	_, err := NewGame(1, 1, 1, 1)
-	if err.Error() != "too much mines" {
+	if err == nil || err.Error() != "too much mines" {
 		t.Error("Should fail if mines count bigger or equals field size")
 	}
 }
 
 func TestMinMines(t *testing.T) {
 	_, err := NewGame(1, 1, 0, 1)
-	if err.Error() != "should be atleast 1 mine on a field" {
+	if err == nil || err.Error() != "should be atleast 1 mine on a field" {
 		t.Error("Should fail if no mines on a field")
 	}
 
 	_, err = NewGame(1, 1, -1, 1)
-	if err.Error() != "should be atleast 1 mine on a field" {
+	if err == nil || err.Error() != "should be atleast 1 mine on a field" {
 		t.Error("Should fail if no mines is negative")
 	}
 }
 
 func TestZeroOrNegativeHeight(t *testing.T) {
 	_, err := NewGame(1, 0, 1, 1)
-	if err.Error() != "field to small" {
+	if err == nil || err.Error() != "field to small" {
 		t.Error("Should fail if field heigth 0")
 	}
 
 	_, err = NewGame(1, -1, 1, 1)
-	if err.Error() != "field to small" {
+	if err == nil || err.Error() != "field to small" {
 		t.Error("Should fail if field heigth negative")
 	}
 }
 
 func TestZeroOrNegativeWidth(t *testing.T) {
 	_, err := NewGame(0, 1, 1, 1)
-	if err.Error() != "field to small" {
+	if err == nil || err.Error() != "field to small" {
 		t.Error("Should fail if field width 0")
 	}
 
 	_, err = NewGame(0, 1, 1, 1)
-	if err.Error() != "field to small" {
+	if err == nil || err.Error() != "field to small" {
 		t.Error("Should fail if field width negative")
+	}
+}
+
+func TestZeroOrNegativeLives(t *testing.T) {
+	_, err := NewGame(2, 2, 1, 0)
+
+	if err == nil || err.Error() != "player should have atleast 1 live" {
+		t.Error("Should fail if field width 0")
+	}
+
+	_, err = NewGame(2, 2, 1, -1)
+	if err == nil || err.Error() != "player should have atleast 1 live" {
+		t.Error("Should fail if field width negative")
+	}
+}
+
+func TestGetCell(t *testing.T) {
+	game, _ := NewGame(2, 2, 1, 1)
+
+	if game.GetCell(-1, 0) != nil {
+		t.Error("GetCell should return nil for negatives")
+	}
+
+	if game.GetCell(0, -1) != nil {
+		t.Error("GetCell should return nil for negatives")
+	}
+
+	if game.GetCell(0, 0) == nil {
+		t.Error("GetCell should return cell for valida position")
+	}
+
+	if game.GetCell(0, 999) != nil {
+		t.Error("GetCell should nil for out of bondries position")
+	}
+
+	if game.GetCell(999, 0) != nil {
+		t.Error("GetCell should nil for out of bondries position")
 	}
 }
 
@@ -87,7 +124,7 @@ func TestGetMines(t *testing.T) {
 }
 
 func TestIsLose(t *testing.T) {
-	g := Game{}
+	g := Game{livesLeft: 1}
 
 	if g.IsLose() {
 		t.Error("Game should not be lost untile mine hit")
@@ -257,6 +294,37 @@ func TestGameLose(t *testing.T) {
 
 	if game.livesLeft != 0 {
 		t.Error("Game livesLeft should be 0")
+	}
+}
+
+func TestLivesDec(t *testing.T) {
+	actualGetRandSeed := getRandSeed
+	getRandSeed = func() int64 { return 1 }
+	defer func() {
+		getRandSeed = actualGetRandSeed
+	}()
+
+	game, err := NewGame(3, 3, 2, 2)
+	if err != nil {
+		t.Error("Should creates new game without error")
+	}
+
+	if game.GetLivesLeft() != 2 {
+		t.Error("GetLivesLeft should retrun correct value")
+	}
+
+	game.OpenCell(2, 2)
+
+	if game.IsOver() {
+		t.Error("Game should not be over")
+	}
+
+	if game.IsLose() {
+		t.Error("Player should not lose")
+	}
+
+	if game.GetLivesLeft() != 1 {
+		t.Error("GetLivesLeft should retrun correct value")
 	}
 }
 

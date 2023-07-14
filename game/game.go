@@ -217,8 +217,8 @@ func NewGame(w int, h int, mines int, lives int) (*Game, error) {
 		return nil, errors.New("too much mines")
 	}
 
-	if lives < 0 {
-		return nil, errors.New("lives should be bigger that 0")
+	if lives <= 0 {
+		return nil, errors.New("player should have atleast 1 live")
 	}
 
 	game := &Game{
