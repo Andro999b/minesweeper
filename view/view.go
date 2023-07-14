@@ -19,9 +19,7 @@ type View struct {
 	screen tcell.Screen
 }
 
-func NewView(g *game.Game) (*View, error) {
-	var err error
-
+func NewView(g *game.Game) (view *View, err error) {
 	screen, err := tcell.NewScreen()
 	if err != nil {
 		return nil, err
@@ -33,7 +31,7 @@ func NewView(g *game.Game) (*View, error) {
 
 	screen.Clear()
 
-	view := &View{&Cursor{0, 0}, g, screen}
+	view = &View{&Cursor{0, 0}, g, screen}
 	return view, nil
 }
 

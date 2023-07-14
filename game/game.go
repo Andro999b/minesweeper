@@ -196,7 +196,7 @@ func (g *Game) uncoverCell(cell *Cell) {
 	g.uncovered++
 }
 
-func NewGame(w int, h int, mines int, lives int) (*Game, error) {
+func NewGame(w int, h int, mines int, lives int) (game *Game, err error) {
 	if w < 1 || h < 1 {
 		return nil, errors.New("field to small")
 	}
@@ -221,7 +221,7 @@ func NewGame(w int, h int, mines int, lives int) (*Game, error) {
 		return nil, errors.New("player should have atleast 1 live")
 	}
 
-	game := &Game{
+	game = &Game{
 		w:         w,
 		h:         h,
 		mines:     mines,
